@@ -1,0 +1,68 @@
+> new_ids_30wk <- FindNeighbors(new_ids_30wk, graph.name = "RNA_snn", dims = 1:100)
+Error in FindNeighbors.Seurat(new_ids_30wk, graph.name = "RNA_snn", dims = 1:100) : 
+  More dimensions specified in dims than have been computed
+> new_ids_30wk <- FindNeighbors(new_ids_30wk, graph.name = "RNA_snn", dims = 1:8)
+Computing nearest neighbor graph
+Computing SNN
+Only one graph name supplied, storing nearest-neighbor graph only
+> new_ids_30wk <- FindClusters(new_ids_30wk, graph.name = "RNA_snn", resolution = 1, algorithm = 1, verbose = TRUE)
+Modularity Optimizer version 1.3.0 by Ludo Waltman and Nees Jan van Eck
+
+Number of nodes: 16496
+Number of edges: 155880
+
+Running Louvain algorithm...
+0%   10   20   30   40   50   60   70   80   90   100%
+[----|----|----|----|----|----|----|----|----|----|
+**************************************************|
+Maximum modularity in 10 random starts: 0.8463
+Number of communities: 23
+Elapsed time: 1 seconds
+4 singletons identified. 19 final clusters.
+> new_ids_30wk_sub <- FindSubCluster(
++   new_ids_30wk,
++   cluster = "Monocytes",
++   "RNA_snn",
++   subcluster.name = "subsets",
++   resolution = 0.12,
++   algorithm = 1
++ )
+Error in WhichCells.Seurat(object = object, idents = cluster) : 
+  Cannot find the following identities in the object: Monocytes
+> ident(new_ids_30wk) <- new_ids_30wk@meta.data$celltype
+Error in ident(new_ids_30wk) <- new_ids_30wk@meta.data$celltype : 
+  could not find function "ident<-"
+> Idents(object=new_ids_30wk) <- new_ids_30wk@meta.data$celltype
+> new_ids_30wk_sub <- FindSubCluster(
++   new_ids_30wk,
++   cluster = "Monocytes",
++   "RNA_snn",
++   subcluster.name = "subsets",
++   resolution = 0.12,
++   algorithm = 1
++ )
+Modularity Optimizer version 1.3.0 by Ludo Waltman and Nees Jan van Eck
+
+Number of nodes: 864
+Number of edges: 7552
+
+Running Louvain algorithm...
+0%   10   20   30   40   50   60   70   80   90   100%
+[----|----|----|----|----|----|----|----|----|----|
+**************************************************|
+Maximum modularity in 10 random starts: 0.8991
+Number of communities: 5
+Elapsed time: 0 seconds
+2 singletons identified. 3 final clusters.
+> DimPlot(new_ids_30wk_sub, reduction = "umap", group.by = "subsets", label = TRUE, label.size = 3)
+> new_ids_30wk_sub <- SetIdent(new_ids_30wk_sub, value = new_ids_30wk_sub@meta.data$subsets)
+> mono <- subset(x = new_ids_30wk_sub, idents = c("Monocytes_0","Monocytes_1"))
+> sub_up_markers <- FindAllMarkers(mono, min.pct = 0.25, only.pos = TRUE)
+Calculating cluster Monocytes_0
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=01s  
+Calculating cluster Monocytes_1
+  |++++++++++++++++++++++++++++++++++++++++++++++++++| 100% elapsed=01s  
+> sub_up_markers %>% group_by(cluster) %>% top_n(n = 20, wt = avg_log2FC) -> sub_top20
+> cluster_counts <- data.frame(unclass(table(mono@meta.data$genotype, mono@meta.data$subsets)))
+> write.csv(cluster_counts, "mono sub counts by genotype.csv")
+> view(sub_top20)
