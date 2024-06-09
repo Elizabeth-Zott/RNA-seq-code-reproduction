@@ -55,6 +55,7 @@ Number of communities: 5
 Elapsed time: 0 seconds
 2 singletons identified. 3 final clusters.
 > DimPlot(new_ids_30wk_sub, reduction = "umap", group.by = "subsets", label = TRUE, label.size = 3)
+![image](https://github.com/Elizabeth-Zott/RNA-seq-code-reproduction/blob/main/Extended%20Data%20Fig.%205d.png)
 > new_ids_30wk_sub <- SetIdent(new_ids_30wk_sub, value = new_ids_30wk_sub@meta.data$subsets)
 > mono <- subset(x = new_ids_30wk_sub, idents = c("Monocytes_0","Monocytes_1"))
 > sub_up_markers <- FindAllMarkers(mono, min.pct = 0.25, only.pos = TRUE)
