@@ -68,3 +68,39 @@ Calculating cluster Monocytes_1
 > write.csv(cluster_counts, "mono sub counts by genotype.csv")
 > view(sub_top20)
 then to check the file "sub_top20", I can see the ，应该是monocyte_0对应的是文献里的Ly6hi
+> #Lymphoid proportions-of-clusters analysis (Ext Data Fig. 5e)
+> lymphoid <- subset(x = new_ids_30wk, idents = c("Cxcr6+ T cells", "T cells", 
++                                                 "B cells", "Proliferating T cells"))
+> Idents(lymphoid) <- TR@meta.data$genotype
+> lymphoid_prop_test <- sc_utils(lymphoid)
+> lymphoid_D3A_prop_test <- permutation_test(
++   lymphoid_prop_test, cluster_identity = "celltype",
++   sample_1 = "wt", sample_2 = "dnmt3a",
++   sample_identity = "genotype"
++ )
+> permutation_plot(lymphoid_D3A_prop_test)
+> lymphoid_D3A_plot_data <- copy(lymphoid_D3A_prop_test@results$permutation)
+> lymphoid_D3A_plot_data[, clusters := fct_reorder(factor(clusters), obs_log2FD)]
+> lymphoid_TET_prop_test <- permutation_test(
++   lymphoid_prop_test, cluster_identity = "celltype",
++   sample_1 = "wt", sample_2 = "tet2",
++   sample_identity = "genotype"
++ )
+> permutation_plot(lymphoid_TET_prop_test)
+> lymphoid_TET_plot_data <- copy(lymphoid_TET_prop_test@results$permutation)
+> lymphoid_TET_plot_data[, clusters := fct_reorder(factor(clusters), obs_log2FD)]
+> lymphoid_TET_plot_data$Genotype <- "Tet2 KO"
+> lymphoid_D3A_plot_data$Genotype <- "Dnmt3a KO"
+> lymphoid_combo_prop_plot <- lymphoid_TET_plot_data %>% 
++   bind_rows(lymphoid_D3A_plot_data)
+> lymphoid_combo_prop_plot
+                clusters        wt       tet2 obs_log2FD        pval         FDR boot_mean_log2FD boot_CI_2.5 boot_CI_97.5  Genotype     dnmt3a
+1:               B cells 0.3862309 0.69217391  0.8416712 0.000999001 0.001332001        0.8428901   0.7738100   0.91567961   Tet2 KO         NA
+2:        Cxcr6+ T cells 0.1080057 0.07217391 -0.5815579 0.000999001 0.001332001       -0.5902838  -0.9216528  -0.29862372   Tet2 KO         NA
+3: Proliferating T cells 0.0413706 0.02260870 -0.8717281 0.001998002 0.001998002       -0.9018018  -1.4983999  -0.36260998   Tet2 KO         NA
+4:               T cells 0.4643929 0.21304348 -1.1241979 0.000999001 0.001332001       -1.1280029  -1.3063248  -0.96446098   Tet2 KO         NA
+5:               B cells 0.3862309         NA  1.1014375 0.000999001 0.001998002        1.1016961   1.0223980   1.18062291 Dnmt3a KO 0.82872928
+6:        Cxcr6+ T cells 0.1080057         NA -0.2446309 0.197802198 0.197802198       -0.2644273  -0.7477313   0.20328324 Dnmt3a KO 0.09116022
+7: Proliferating T cells 0.0413706         NA -0.7346705 0.076923077 0.102564103       -0.8337730  -2.2348681   0.06427344 Dnmt3a KO 0.02486188
+8:               T cells 0.4643929         NA -3.0713355 0.000999001 0.001998002       -3.1097913  -3.8151524  -2.55520766 Dnmt3a KO 0.05524862
+> write.csv(lymphoid_combo_prop_plot, "ext5e_30wk_lymphoid_scprop_data.csv")
