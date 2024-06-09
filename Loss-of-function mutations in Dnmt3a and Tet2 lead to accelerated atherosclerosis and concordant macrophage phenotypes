@@ -66,3 +66,4 @@ Calculating cluster Monocytes_1
 > cluster_counts <- data.frame(unclass(table(mono@meta.data$genotype, mono@meta.data$subsets)))
 > write.csv(cluster_counts, "mono sub counts by genotype.csv")
 > view(sub_top20)
+then to check the file "sub_top20", I can see the ，应该是monocyte_0对应的是文献里的Ly6hi
